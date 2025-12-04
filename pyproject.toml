@@ -6,8 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.123.4",
+    "google-generativeai>=0.8.5",
     "openai-agents>=0.6.1",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
+    "qdrant-client>=1.16.1",
     "uvicorn>=0.38.0",
 ]

@@ -3,3 +3,6 @@ uvicorn
 openai
 python-dotenv
 pydantic
+google-generativeai
+qdrant-client
+openai-agents
