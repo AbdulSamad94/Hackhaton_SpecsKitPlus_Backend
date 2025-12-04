@@ -52,7 +52,7 @@ def search_qdrant(
         with_vectors=False,
     )
 
-    logger.info(
+    logger.debug(
         "Qdrant query_points raw response type=%s keys=%s",
         type(response),
         list(response.__dict__.keys()),

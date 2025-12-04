@@ -1,10 +1,23 @@
 from typing import List, Optional, Dict, Any
 import logging
+from dataclasses import dataclass
 from agents import function_tool
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as rest
 from utils.helpers import embed_text
 from logging import Logger
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class BookContext:
+    """Represents a context chunk from the Physical AI textbook."""
+    text: str
+    title: str
+    slug: str
+    heading: str
+    score: float
 
 # Global references (initialized in main.py)
 _qdrant_client: Optional[QdrantClient] = None
@@ -32,7 +45,7 @@ def search_book_content(query: str, top_k: int = 5, chapter_slug: Optional[str] 
     if not _qdrant_client:
         raise RuntimeError("Qdrant client not initialized")
 
-    Logger.info(f"Searching book content for query: {query}")
+    logging.info(f"Searching book content for query: {query}")
 
     # Generate embedding for the query
     query_embedding = embed_text(query)
@@ -73,7 +86,7 @@ def search_book_content(query: str, top_k: int = 5, chapter_slug: Optional[str] 
             )
         )
 
-    Logger.info(f"Found {len(contexts)} relevant chunks")
+    logging.info(f"Found {len(contexts)} relevant chunks")
     return contexts
 
 

@@ -139,16 +139,16 @@ async def chat(req: ChatRequest):
         )
 
     prompt = build_rag_prompt(req.query, contexts)
-    
+
     # Append history to prompt if needed
     history_context = ""
     if req.history:
         history_context = "\nChat History:\n"
-        for msg in req.history[-5:]: # Last 5 messages
+        for msg in req.history[-5:]:  # Last 5 messages
             role = msg.get("role", "user")
             content = msg.get("content", "")
             history_context += f"{role}: {content}\n"
-    
+
     full_prompt = f"{history_context}\n{prompt}"
 
     try:

@@ -14,6 +14,11 @@ load_dotenv()
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
+if not QDRANT_URL or not QDRANT_API_KEY:
+    raise ValueError(
+        "QDRANT_URL and QDRANT_API_KEY must be set in environment variables."
+    )
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
