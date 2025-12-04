@@ -1,19 +1,30 @@
+"""
+Gemini Model Configuration
+
+Configures OpenAI Agents SDK to use Google Gemini via OpenAI compatibility layer.
+Uses Gemini 2.0 Flash model through the generativelanguage.googleapis.com API.
+"""
+
 from agents import OpenAIChatCompletionsModel, RunConfig
 from dotenv import load_dotenv
 import os
 from openai import AsyncOpenAI
+import google.generativeai as genai
 
 load_dotenv()
+
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable is not set.")
+
+genai.configure(api_key=GEMINI_API_KEY)
 
 client = AsyncOpenAI(
     api_key=GEMINI_API_KEY,
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
 )
 
-model = OpenAIChatCompletionsModel(openai_client=client, model="gemini-2.5-flash")
+model = OpenAIChatCompletionsModel(openai_client=client, model="gemini-2.0-flash")
 
 # config = RunConfig(tracing_disabled=True, model=model, model_provider=client)
