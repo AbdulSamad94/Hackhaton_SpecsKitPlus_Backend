@@ -108,8 +108,8 @@ def load_cache() -> Dict[str, str]:
         try:
             with open(CACHE_FILE, "r") as f:
                 return json.load(f)
-        except Exception as e:
-            logger.warning(f"Could not load cache file: {e}")
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Could not load or parse cache file: {e}")
     return {}
 
 
@@ -160,7 +160,7 @@ def ingest_docs():
 
     for file_path in mdx_files:
         try:
-            rel_path = os.path.relpath(file_path, DOCS_DIR)
+            rel_path = os.path.relpath(file_path, DOCS_DIR).replace(os.sep, "/")
 
             # Check if file has changed
             current_hash = calculate_file_hash(file_path)
