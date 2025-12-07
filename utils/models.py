@@ -2,11 +2,17 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional
 
 
+class UserContext(BaseModel):
+    software_background: Optional[str] = None
+    hardware_background: Optional[str] = None
+
+
 class ChatRequest(BaseModel):
     query: str
     history: List[dict] = []
     top_k: int = 5
     chapter_slug: Optional[str] = None
+    user_context: Optional[UserContext] = None
 
 
 class ChatResponse(BaseModel):
@@ -31,6 +37,9 @@ class AskSelectionRequest(BaseModel):
     )
     chapter_slug: Optional[str] = Field(
         None, description="Optional chapter identifier for context"
+    )
+    user_context: Optional[UserContext] = Field(
+        None, description="Optional user background context"
     )
 
     @field_validator("selected_text")

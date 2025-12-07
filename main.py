@@ -36,6 +36,7 @@ from utils.helpers import (
     build_selection_prompt,
 )
 from models import model, client
+from personalization import create_personalized_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -152,10 +153,13 @@ async def chat(req: ChatRequest):
     full_prompt = f"{history_context}\n{prompt}"
 
     try:
-        # Create an agent with RAG context
+        # Generate personalized system instruction
+        system_instruction = create_personalized_prompt(req.user_context)
+        
+        # Create an agent with RAG context and personalized instructions
         agent = Agent(
             name="Humanoid Robotics Textbook Assistant",
-            instructions="You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. Answer questions using the provided context from the textbook.",
+            instructions=system_instruction,
             model=model,
         )
 
@@ -196,14 +200,23 @@ async def ask_selection(req: AskSelectionRequest):
     prompt = build_selection_prompt(req.selected_text, req.question)
 
     try:
+        # Generate personalized system instruction
+        base_instruction = (
+            "You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. "
+            "Help students understand selected passages by answering their questions clearly, "
+            "accurately, and in a way that builds on the provided text context."
+        )
+
+        # Use a personalized prompt if background information is available.
+        if req.user_context and (req.user_context.software_background or req.user_context.hardware_background):
+            system_instruction = create_personalized_prompt(req.user_context)
+        else:
+            system_instruction = base_instruction
+
         # Create agent with selection-focused instructions
         agent = Agent(
             name="Humanoid Robotics Textbook Assistant",
-            instructions=(
-                "You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. "
-                "Help students understand selected passages by answering their questions clearly, "
-                "accurately, and in a way that builds on the provided text context."
-            ),
+            instructions=system_instruction,
             model=model,
         )
 
