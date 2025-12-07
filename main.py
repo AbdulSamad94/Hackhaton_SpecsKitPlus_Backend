@@ -201,22 +201,15 @@ async def ask_selection(req: AskSelectionRequest):
 
     try:
         # Generate personalized system instruction
-        # We start with the base selection instruction and adapt it with user context
         base_instruction = (
             "You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. "
             "Help students understand selected passages by answering their questions clearly, "
             "accurately, and in a way that builds on the provided text context."
         )
-        
-        # Determine if we should personalize
-        if req.user_context and (req.user_context.get("software_background") or req.user_context.get("hardware_background")):
-            # Create personalized prompt but maybe tweak it to ensure it still emphasizes the "selection" aspect
-            # For simplicity, we can use create_personalized_prompt but strictly tell it to focus on selection in the prompt
-            personalized_instruction = create_personalized_prompt(req.user_context)
-            # Combine them or just use personalized instruction. 
-            # create_personalized_prompt has a generic "Provide clear... answers". 
-            # Let's trust the agent to handle the specific selection prompt passed in Runner.run
-            system_instruction = personalized_instruction
+
+        # Use a personalized prompt if background information is available.
+        if req.user_context and (req.user_context.software_background or req.user_context.hardware_background):
+            system_instruction = create_personalized_prompt(req.user_context)
         else:
             system_instruction = base_instruction
 

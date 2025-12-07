@@ -1,6 +1,7 @@
-from typing import Optional, Dict
+from typing import Optional
+from utils.models import UserContext
 
-def create_personalized_prompt(user_context: Optional[Dict] = None) -> str:
+def create_personalized_prompt(user_context: Optional[UserContext] = None) -> str:
     """
     Create a system prompt based on user's background.
     """
@@ -10,10 +11,9 @@ def create_personalized_prompt(user_context: Optional[Dict] = None) -> str:
         "While your primary focus is the textbook, you should be conversational, encouraging, and willing to discuss broader robotics concepts if helpful.",
     ]
     
-    # Ensure we handle None values safely even if the key exists
-    ctx = user_context or {}
-    software_bg = (ctx.get("software_background") or "").strip()
-    hardware_bg = (ctx.get("hardware_background") or "").strip()
+    # Access Pydantic model attributes
+    software_bg = (user_context.software_background or "").strip() if user_context else ""
+    hardware_bg = (user_context.hardware_background or "").strip() if user_context else ""
     
     if software_bg or hardware_bg:
         prompt_parts.append("\nIMPORTANT: You have the following background information about this user. USE IT to personalize your explanations:")
@@ -22,7 +22,8 @@ def create_personalized_prompt(user_context: Optional[Dict] = None) -> str:
         if hardware_bg:
             prompt_parts.append(f"- Hardware Experience: {hardware_bg}")
         
-        prompt_parts.append("""
+        import textwrap
+        prompt_parts.append(textwrap.dedent("""
         Guidelines for Personalization:
         1. If the user asks about their background or what you know about them, explicitly mention what you know from the list above.
         2. Tailor your analogies and technical depth:
@@ -30,7 +31,7 @@ def create_personalized_prompt(user_context: Optional[Dict] = None) -> str:
         - For hardware experts, relate concepts to physical components (sensors, actuators).
         - For beginners, use simple, everyday analogies.
         3. Be supportive! If they are a beginner, encourage their progress.
-        """)
+        """))
     else:
         prompt_parts.append("\nYou don't have specific background information about this user yet. If they ask about personalization or how to add their background experience, tell them they can update their details on the Profile page (click the avatar in the navbar -> Profile).")
     
