@@ -36,6 +36,7 @@ from utils.helpers import (
     build_selection_prompt,
 )
 from models import model, client
+from personalization import create_personalized_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -152,10 +153,13 @@ async def chat(req: ChatRequest):
     full_prompt = f"{history_context}\n{prompt}"
 
     try:
-        # Create an agent with RAG context
+        # Generate personalized system instruction
+        system_instruction = create_personalized_prompt(req.user_context)
+        
+        # Create an agent with RAG context and personalized instructions
         agent = Agent(
             name="Humanoid Robotics Textbook Assistant",
-            instructions="You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. Answer questions using the provided context from the textbook.",
+            instructions=system_instruction,
             model=model,
         )
 
@@ -196,14 +200,30 @@ async def ask_selection(req: AskSelectionRequest):
     prompt = build_selection_prompt(req.selected_text, req.question)
 
     try:
+        # Generate personalized system instruction
+        # We start with the base selection instruction and adapt it with user context
+        base_instruction = (
+            "You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. "
+            "Help students understand selected passages by answering their questions clearly, "
+            "accurately, and in a way that builds on the provided text context."
+        )
+        
+        # Determine if we should personalize
+        if req.user_context and (req.user_context.get("software_background") or req.user_context.get("hardware_background")):
+            # Create personalized prompt but maybe tweak it to ensure it still emphasizes the "selection" aspect
+            # For simplicity, we can use create_personalized_prompt but strictly tell it to focus on selection in the prompt
+            personalized_instruction = create_personalized_prompt(req.user_context)
+            # Combine them or just use personalized instruction. 
+            # create_personalized_prompt has a generic "Provide clear... answers". 
+            # Let's trust the agent to handle the specific selection prompt passed in Runner.run
+            system_instruction = personalized_instruction
+        else:
+            system_instruction = base_instruction
+
         # Create agent with selection-focused instructions
         agent = Agent(
             name="Humanoid Robotics Textbook Assistant",
-            instructions=(
-                "You are a helpful tutor for a textbook about Physical AI & Humanoid Robotics. "
-                "Help students understand selected passages by answering their questions clearly, "
-                "accurately, and in a way that builds on the provided text context."
-            ),
+            instructions=system_instruction,
             model=model,
         )
 
