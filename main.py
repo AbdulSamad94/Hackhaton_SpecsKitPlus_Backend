@@ -29,12 +29,8 @@ from utils.models import (
     AskSelectionRequest,
     AskSelectionResponse,
 )
-from utils.helpers import (
-    embed_text,
-    search_qdrant,
-    build_rag_prompt,
-    build_selection_prompt,
-)
+from utils.helpers import build_selection_prompt
+from utils.tools import search_book_content, set_qdrant_client
 from models import model, client
 from personalization import create_personalized_prompt
 
@@ -107,71 +103,45 @@ async def health_check():
 @app.post("/chat", response_model=ChatResponse)
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    try:
-        query_emb = embed_text(req.query)
-    except Exception as e:
-        logger.exception("Failed to embed query: %s", e)
-        raise HTTPException(status_code=500, detail="Embedding failed")
+    # Ensure Qdrant client is available for tools
+    # This must be called before the tool is invoked
+    set_qdrant_client(get_qdrant())
 
-    try:
-        # Get qdrant client (initializes if needed for serverless)
-        qdrant_client = get_qdrant()
-        points = search_qdrant(
-            qdrant_client,
-            query_emb,
-            top_k=req.top_k,
-            chapter_slug=req.chapter_slug,
-        )
-    except Exception as e:
-        logger.exception("Qdrant search failed: %s", e)
-        raise HTTPException(status_code=500, detail="Vector search failed")
-
-    contexts: List[dict] = []
-    for p in points:
-        payload = p.payload or {}
-        contexts.append(
-            {
-                "text": payload.get("text", ""),
-                "title": payload.get("filename", ""),
-                "slug": payload.get("source", ""),
-                "heading": "",
-                "score": p.score,
-            }
-        )
-
-    prompt = build_rag_prompt(req.query, contexts)
-
-    # Append history to prompt if needed
+    # Example of how we might pass history if the Agent supports it in the string prompt:
     history_context = ""
     if req.history:
         history_context = "\nChat History:\n"
-        for msg in req.history[-5:]:  # Last 5 messages
+        for msg in req.history[-5:]:
             role = msg.get("role", "user")
             content = msg.get("content", "")
             history_context += f"{role}: {content}\n"
 
-    full_prompt = f"{history_context}\n{prompt}"
-
     try:
         # Generate personalized system instruction
         system_instruction = create_personalized_prompt(req.user_context)
-        
-        # Create an agent with RAG context and personalized instructions
+
+        # Create an agent with the 'search_book_content' tool
         agent = Agent(
             name="Humanoid Robotics Textbook Assistant",
             instructions=system_instruction,
             model=model,
+            tools=[search_book_content],
         )
 
-        # Use the agent to generate answer with the RAG prompt
-        result = await Runner.run(agent, full_prompt, run_config=run_config)
+        # Run the agent
+        # It will autonomously decide to call 'search_book_content' if needed
+        result = await Runner.run(
+            agent, f"{history_context}\nUser Query: {req.query}", run_config=run_config
+        )
         answer = result.final_output
 
     except Exception as e:
         logger.exception("Agent generation failed: %s", e)
         raise HTTPException(status_code=500, detail="Generation failed")
 
-    return ChatResponse(answer=answer, contexts=contexts)
+    # In Agentic RAG, we don't manually return 'contexts' list because the tool
+    # handles retrieval internally. The UI might need adjustment or we accept empty contexts.
+    return ChatResponse(answer=answer, contexts=[])
 
 
 ##### Ask On Selection Endpoint #####
@@ -208,7 +178,9 @@ async def ask_selection(req: AskSelectionRequest):
         )
 
         # Use a personalized prompt if background information is available.
-        if req.user_context and (req.user_context.software_background or req.user_context.hardware_background):
+        if req.user_context and (
+            req.user_context.software_background or req.user_context.hardware_background
+        ):
             system_instruction = create_personalized_prompt(req.user_context)
         else:
             system_instruction = base_instruction
@@ -218,6 +190,7 @@ async def ask_selection(req: AskSelectionRequest):
             name="Humanoid Robotics Textbook Assistant",
             instructions=system_instruction,
             model=model,
+            tools=[search_book_content],
         )
 
         # Generate answer

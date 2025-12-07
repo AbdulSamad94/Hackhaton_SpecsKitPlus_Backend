@@ -1,0 +1,22 @@
+{
+  "intro.md": "67906a9cdc070986e19e8a98b748a6da8f13e738ad76851e8999f7a7a6447826",
+  "capstone\\project-overview.mdx": "b14cefa692a9110bcd4f0d0d5abbb01c8a597facee2c7babfd1b3bd63d18fab7",
+  "hardware\\edgekits.mdx": "12c116e162c7486d2ba1408383262f640d07fd957f3f722ccbdf2143cf8f1def",
+  "hardware\\workstations.mdx": "61271f75d4e9a557cb9875cfc3b21b36eef87c0a1803abbf79ed6164f8c03ca4",
+  "labs\\week1-exercise1.mdx": "da620fe0062d58c71c013baccf8863462bc0a7623f61286f32b3f3ff8fd9de8b",
+  "labs\\week2-ros2.mdx": "faabd6a960ce96ea1786852e2340e6e9ec7164fcce94442a15ca35862213b253",
+  "labs\\week3-sim.mdx": "f2fa72cbb1c423fa09c4ce43faf61c35435c4a44079cba24ebe9c9ee77f65bb3",
+  "labs\\week4-isaac.mdx": "a429726cea215b37540e74354bf02e502046abf01768cb0b4d936c0087eff435",
+  "labs\\week5-vla.mdx": "a67bfbc4e61ac9aefdb9afd104365d0149bc443490ba84477703cd85a54baefe",
+  "modules\\module1-ros2\\chapter1.mdx": "a8adc32748a5b371aca9cf4d3177cd85189bdad48e4c078e9bed5851d5af0502",
+  "modules\\module1-ros2\\chapter2.mdx": "00a9d8ec1864e000c2bc1ebd2dc92e7f761a9aaa5e6c8cf6a99f93b6a8efaa59",
+  "modules\\module2-gazebo-unity\\chapter1.mdx": "16bd4683ca3a0fef84d5850f1e5f69d5d292298f3536ec0d31adf6878f739e86",
+  "modules\\module2-gazebo-unity\\chapter2.mdx": "7ce76c9b67f5f7782879a251f054e5f65a5810957feb4d10c98f99b58837cce8",
+  "modules\\module3-nvidia-isaac\\chapter1.mdx": "bfd160880ec128df4e487e8c9651193d110b68fa6d152d273838b080992f3e1d",
+  "modules\\module3-nvidia-isaac\\chapter2.mdx": "a5523b8ed423da7f50d41dee4de1dba8aed9cabefa3aa0d435f73bf1213a000a",
+  "modules\\module4-vla\\chapter1.mdx": "1bf1c9279943c3a6887f094110518296f14b8d34aca5bba84b42ed4bee497599",
+  "modules\\module4-vla\\chapter2.mdx": "830a89c4627a08f223ab46618b7cdef2ee8bd23fb85999aad15e91e84188fd20",
+  "sensors\\camera.mdx": "f5a0ec5b3a66045d3c034169380a35b5eca077955d50f0b8ceaeb2db68a91fe7",
+  "sensors\\imu.mdx": "060e12632c11f88f2ecaa672fb3e5c0bf6d6d34199a61fc70c2d00b418c47116",
+  "sensors\\lidar.mdx": "b016c4dd92910b74f4dadf28d143f0bc579e8668ca96f625463a4410d8854135"
+}
