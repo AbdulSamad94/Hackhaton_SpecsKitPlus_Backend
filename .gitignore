@@ -122,3 +122,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Ingestion cache (local environment specific)
+ingestion_cache.json
